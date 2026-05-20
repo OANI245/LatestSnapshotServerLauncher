@@ -1,0 +1,10 @@
+{
+  "name": "Latest Minecraft Snapshot Server Launcher",
+  "name_short": "lssl",
+  "version": "1.0-alpha-1",
+  "version_name": "1.0 Alpha 1",
+  "author": [
+    { "primary": "OANI_245", "other": "CodeCat, mmiResifx, 39mmi, OANI245" }
+  ],
+  "service": 0
+}
