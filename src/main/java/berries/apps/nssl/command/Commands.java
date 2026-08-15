@@ -1,8 +1,10 @@
 package berries.apps.nssl.command;
 
-import berries.apps.nssl.command.app.ExitCommand;
-import berries.apps.nssl.command.app.HelpCommand;
-import berries.apps.nssl.command.app.VerCommand;
+import berries.apps.nssl.command.app.*;
+import berries.apps.nssl.command.install.CheckUpdateCommand;
+import berries.apps.nssl.command.install.DebugUpdateCommand;
+import berries.apps.nssl.command.install.ForceInstallCommand;
+import berries.apps.nssl.command.server.StopToCommandOnlyCommand;
 import berries.apps.nssl.console.output.Printers;
 
 import java.util.HashMap;
@@ -16,8 +18,14 @@ public class Commands {
     public static final String COMMAND_PREFIX = "#";
 
     public static void init() {
+        register("checkupdate", CheckUpdateCommand::run);
+        register("config", ConfigCommand::run);
+        register("debugupdate", DebugUpdateCommand::run);
         register("exit", ExitCommand::run);
+        register("forceinstall", ForceInstallCommand::run);
         register("help", HelpCommand::run);
+        register("start", StartCommand::run);
+        register("stoptocmdonly", StopToCommandOnlyCommand::run);
         register("ver", VerCommand::run);
     }
 

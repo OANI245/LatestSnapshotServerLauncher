@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "berries.apps"
-version = "1.0-alpha-1"
+version = "1.0-alpha-3"
 
 repositories {
     mavenCentral()
@@ -20,6 +20,13 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.3")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
+
+    implementation("io.netty:netty-all:4.2.13.Final")
+    implementation("io.netty:netty-handler:4.2.13.Final")
+    implementation("io.netty:netty-buffer:4.2.13.Final")
+    implementation("io.netty:netty-transport:4.2.13.Final")
+
+    implementation("com.google.guava:guava:33.6.0-jre")
 }
 
 tasks.jar {

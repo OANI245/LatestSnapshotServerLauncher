@@ -13,7 +13,7 @@ public interface VerCommand {
         authorTextBuilder.append("Created by: ");
         Launcher.INFO.getAuthors().forEach((v) -> {
             authorTextBuilder.append(v.get("primary"))
-                    .append(" (").append(v.get("other")).append(")").append(System.lineSeparator());
+                    .append(" (").append(v.get("other")).append(")");
         });
         Printers.LOGGER.info(authorTextBuilder.toString());
     }

@@ -1,11 +1,18 @@
 package berries.apps.nssl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 public class Config {
     public static final String CONFIG_PATH = String.format(".%snssl.json", File.separator);
@@ -17,14 +24,26 @@ public class Config {
     @JsonProperty("check_updates")
     public boolean checkUpdates = true;
 
+    @JsonProperty("auto_start")
+    public boolean autoStart = true;
+
+    @JsonProperty("check_update_time")
+    public UpdateLoopStartTime checkUpdateTime = new UpdateLoopStartTime(5, 0, 0);
+
+    @JsonProperty("check_update_interval")
+    public long interval = 1000 * 60 * 60 * 24; //默认一天
+
     @JsonProperty("console_password")
     public long password = -1;
 
     @JsonProperty("jvm_args")
-    public String[] jvmArgs = {};
+    public List<String> jvmArgs = new ArrayList<>();
 
     @JsonProperty("core_args")
-    public String[] coreArgs = { "nogui" };
+    public List<String> coreArgs = new ArrayList<>(List.of("nogui"));
+
+    @JsonProperty("input_encoding")
+    public Charset encoding = StandardCharsets.UTF_8;
 
     public static Config getInstance() {
         if (instance == null) {
@@ -69,6 +88,24 @@ public class Config {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void reset() {
+        instance = new Config();
+        instance.save();
+    }
+
+    public record UpdateLoopStartTime(@JsonProperty("h") int hour,
+                                      @JsonProperty("m") int minute,
+                                      @JsonProperty("s") int second) {
+        @JsonIgnore
+        public Calendar getCalendar() {
+            var t = Calendar.getInstance(TimeZone.getTimeZone(ZoneId.systemDefault()));
+            t.set(Calendar.HOUR_OF_DAY, hour);
+            t.set(Calendar.MINUTE, minute);
+            t.set(Calendar.SECOND, second);
+            return t;
         }
     }
 }

@@ -1,10 +1,13 @@
 package berries.apps.nssl.install;
 
+import berries.apps.nssl.console.output.Printers;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -15,13 +18,18 @@ public interface Versioning {
         return new File(SERVER_FILE_PATH).exists() && new File(FABRIC_FILE_PATH).exists();
     }
 
-    static String getMinecraftVersion() {
+    static String getMinecraftVersion(boolean bl) {
         try (ZipInputStream z = new ZipInputStream(new FileInputStream(SERVER_FILE_PATH), StandardCharsets.UTF_8)) {
             ZipEntry e;
 
             while ((e = z.getNextEntry()) != null) {
                 if (e.getName().equals("version.json")) try (BufferedReader br = new BufferedReader(new InputStreamReader(z))) {
-                    return new ObjectMapper().readValue(br, ExistServerVersion.class).id;
+                    ExistServerVersion esv = new ObjectMapper()
+                            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(br, ExistServerVersion.class);
+                    if (bl) {
+                        Printers.LOGGER.info("Current Minecraft Version: {}", esv.id);
+                    }
+                    return esv.id;
                 }
             }
         } catch (IOException e) {
@@ -30,20 +38,22 @@ public interface Versioning {
         return "11w47a";
     }
 
-    static VersionResult getLatestMinecraftVersion() {
+    static VersionResult getLatestMinecraftVersion(boolean bl) {
         try {
-            VersionManifest manifest = new ObjectMapper().readValue(new URL("https://piston-meta.mojang.com/mc/game/version_manifest.json"), VersionManifest.class);
-            VersionManifest.VersionObject selected = null;
-            for (VersionManifest.VersionObject version : manifest.versions) {
-                if (version.id.equals(manifest.latest.snapshotVersion) && version.type.equals("snapshot")) {
-                    selected = version;
-                    break;
-                }
+            VersionManifest manifest = new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(new URL("https://piston-meta.mojang.com/mc/game/version_manifest.json"), VersionManifest.class);
+            if (manifest.latest.snapshotVersion == null) {
+                return new VersionResult(getMinecraftVersion(false), null);
             }
+            VersionManifest.VersionObject selected = manifest.versions.getFirst();
             if (selected == null) {
                 return null;
             }
-            return new VersionResult(selected.id, new ObjectMapper().readValue(new URL(selected.url), VersionMeta.class));
+            if (bl) {
+                Printers.LOGGER.info("Latest Minecraft Version: {}", selected.id);
+            }
+            return new VersionResult(selected.id, new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(new URL(selected.url), VersionMeta.class));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,10 +62,11 @@ public interface Versioning {
     }
 
     static boolean shouldUpdate() {
-        var r = getLatestMinecraftVersion();
+        var r = getLatestMinecraftVersion(true);
         if (r == null) {
             return false;
         }
-        return r.id().equals(getMinecraftVersion());
+        boolean bl = !r.id().trim().toLowerCase(Locale.ENGLISH).equals(getMinecraftVersion(true).trim().toLowerCase(Locale.ENGLISH));
+        return bl;
     }
 }

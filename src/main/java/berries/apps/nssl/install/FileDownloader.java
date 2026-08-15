@@ -56,7 +56,7 @@ public class FileDownloader {
                 }
             }
 
-            System.out.println("Download file: " + saveFile.getAbsolutePath());
+            //System.out.println("Download file: " + saveFile.getAbsolutePath());
 
         } finally {
             // 确保连接关闭

@@ -14,6 +14,9 @@ public class VersionManifest {
     public static class LatestVersion {
         @JsonProperty("snapshot")
         public String snapshotVersion;
+
+        @JsonProperty("release")
+        public String releaseVersion;
     }
 
     public static class VersionObject {
